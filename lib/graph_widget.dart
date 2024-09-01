@@ -9,24 +9,24 @@ class GraphWidget extends StatefulWidget {
   final DayData dayData;
 
   /// Creates a [GraphWidget] with the provided day's data.
-  GraphWidget({required this.dayData});
+  const GraphWidget({super.key, required this.dayData});
 
   @override
-  _GraphWidgetState createState() => _GraphWidgetState();
+  GraphWidgetState createState() => GraphWidgetState();
 }
 
 /// State class for [GraphWidget].
-class _GraphWidgetState extends State<GraphWidget> {
-  late double nearestQuarterHour;  // Stores the nearest quarter-hour mark relative to current time
-  late double nearestValue;  // Stores the value at the nearest quarter-hour
-  bool showDefaultTooltip = true;  // Flag to manage default tooltip display
+class GraphWidgetState extends State<GraphWidget> {
+  late double nearestQuarterHour; // Stores the nearest quarter-hour mark relative to current time
+  late double nearestValue; // Stores the value at the nearest quarter-hour
+  bool showDefaultTooltip = true; // Flag to manage default tooltip display
 
   @override
   void initState() {
     super.initState();
     // Initialize the nearest quarter-hour and its value
-    nearestQuarterHour = _getNearestQuarterHour();  // Calculate nearest 15-minute mark
-    nearestValue = _getNearestValue(nearestQuarterHour);  // Get the value at the nearest quarter-hour
+    nearestQuarterHour = _getNearestQuarterHour(); // Calculate nearest 15-minute mark
+    nearestValue = _getNearestValue(nearestQuarterHour); // Get the value at the nearest quarter-hour
   }
 
   /// Calculates the nearest quarter-hour mark to the current time.
@@ -35,11 +35,11 @@ class _GraphWidgetState extends State<GraphWidget> {
     // Calculate the nearest 15-minute increment
     int minutes = (now.minute ~/ 15) * 15;
     if (now.minute % 15 >= 8) {
-      minutes += 15;  // Round up if past the halfway mark of the quarter
+      minutes += 15; // Round up if past the halfway mark of the quarter
     }
     // Convert time to a decimal format for hours
     double hour = now.hour + minutes / 60.0;
-    return hour.clamp(5.0, 24.0);  // Ensure it is within the valid range of the graph (5:00 to 24:00)
+    return hour.clamp(5.0, 24.0); // Ensure it is within the valid range of the graph (5:00 to 24:00)
   }
 
   /// Gets the value from the graph data at the nearest quarter-hour.
@@ -52,13 +52,14 @@ class _GraphWidgetState extends State<GraphWidget> {
         for (var minuteEntry in hourData.value.minutes.entries) {
           // Calculate minute value as a decimal hour
           double minuteValue = hourValue + int.parse(minuteEntry.key) / 60;
-          if ((minuteValue - hour).abs() < 0.125) {  // Check if within 15 minutes
+          if ((minuteValue - hour).abs() < 0.125) {
+            // Check if within 15 minutes
             return minuteEntry.value.toDouble();
           }
         }
       }
     }
-    return 0.0;  // Default to 0 if no close match found
+    return 0.0; // Default to 0 if no close match found
   }
 
   @override
@@ -73,8 +74,7 @@ class _GraphWidgetState extends State<GraphWidget> {
           return Stack(
             children: [
               _buildLineChart(),
-              if (showDefaultTooltip)
-                _buildRedDot(x, y),
+              if (showDefaultTooltip) _buildRedDot(x, y),
             ],
           );
         },
@@ -101,7 +101,7 @@ class _GraphWidgetState extends State<GraphWidget> {
         maxY: 100,
         minX: 5,
         maxX: 24,
-        gridData: FlGridData(show: true),
+        gridData: const FlGridData(show: true),
         titlesData: FlTitlesData(
           bottomTitles: AxisTitles(
             sideTitles: SideTitles(
@@ -113,7 +113,7 @@ class _GraphWidgetState extends State<GraphWidget> {
                   padding: const EdgeInsets.only(top: 4.0),
                   child: Text(
                     '${value.toInt()}:00',
-                    style: TextStyle(fontSize: 10),
+                    style: const TextStyle(fontSize: 10),
                   ),
                 );
               },
@@ -129,16 +129,16 @@ class _GraphWidgetState extends State<GraphWidget> {
                   padding: const EdgeInsets.only(right: 4.0),
                   child: Text(
                     '${value.toInt()}',
-                    style: TextStyle(fontSize: 10),
+                    style: const TextStyle(fontSize: 10),
                   ),
                 );
               },
             ),
           ),
-          topTitles: AxisTitles(
+          topTitles: const AxisTitles(
             sideTitles: SideTitles(showTitles: false),
           ),
-          rightTitles: AxisTitles(
+          rightTitles: const AxisTitles(
             sideTitles: SideTitles(showTitles: false),
           ),
         ),
@@ -154,7 +154,7 @@ class _GraphWidgetState extends State<GraphWidget> {
             barWidth: 3,
             isStrokeCapRound: true,
             belowBarData: BarAreaData(show: true),
-            dotData: FlDotData(show: false),
+            dotData: const FlDotData(show: false),
           ),
         ],
         lineTouchData: LineTouchData(
@@ -193,16 +193,16 @@ class _GraphWidgetState extends State<GraphWidget> {
       tooltipPadding: const EdgeInsets.all(8.0),
       tooltipMargin: 8.0,
       tooltipRoundedRadius: 8.0,
-      tooltipBorder: BorderSide(color: Colors.grey),
+      tooltipBorder: const BorderSide(color: Colors.grey),
       getTooltipItems: (List<LineBarSpot> touchedSpots) {
         return touchedSpots.map((LineBarSpot touchedSpot) {
-          final TextStyle timeStyle = TextStyle(
+          const TextStyle timeStyle = TextStyle(
             color: Colors.red,
             fontWeight: FontWeight.bold,
             fontSize: 14,
           );
-          final TextStyle valueStyle = TextStyle(
-            color: Colors.blue,
+          const TextStyle valueStyle = TextStyle(
+            color: Colors.white,
             fontWeight: FontWeight.bold,
             fontSize: 14,
           );
@@ -211,7 +211,8 @@ class _GraphWidgetState extends State<GraphWidget> {
           final String value = '${touchedSpot.y.toInt()}%';
 
           return LineTooltipItem(
-            '$hourMinute\n', timeStyle,
+            '$hourMinute\n',
+            timeStyle,
             children: [
               TextSpan(
                 text: value,

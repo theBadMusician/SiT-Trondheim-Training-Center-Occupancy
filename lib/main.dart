@@ -7,6 +7,7 @@ void main() {
   runApp(MyApp());
 }
 
+/// The main application widget.
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -20,12 +21,14 @@ class MyApp extends StatelessWidget {
   }
 }
 
+/// The home page of the application, displaying a graph of location data.
 class HomePage extends StatefulWidget {
   @override
   _HomePageState createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
+  // Map of training locations with their respective IDs
   final Map<String, String> trainingLocations = {
     "Gløshaugen": "306",
     "Dragvoll": "307",
@@ -35,26 +38,29 @@ class _HomePageState extends State<HomePage> {
     "Øya": "2825",
   };
 
-  late Future<LocationData> futureLocationData;
-  late String selectedDay; // Declare selectedDay late
+  late Future<LocationData> futureLocationData; // Future for fetching location data
+  late String selectedDay; // The currently selected day
   String selectedLocation = "Øya"; // Default selected location
 
   @override
   void initState() {
     super.initState();
-    selectedDay = _getCurrentDay(); // Set selectedDay to the current day
+    selectedDay = _getCurrentDay(); // Initialize selectedDay to the current day
     futureLocationData = ApiService().fetchData(trainingLocations[selectedLocation]!);
   }
 
-  // Function to get the current day of the week
+  /// Gets the current day of the week.
+  ///
+  /// Returns a string representing the current day of the week.
   String _getCurrentDay() {
     final DateTime now = DateTime.now();
-    final List<String> daysOfWeek = [
-      'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'
-    ];
+    final List<String> daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
     return daysOfWeek[now.weekday - 1]; // DateTime.weekday returns 1 for Monday and 7 for Sunday
   }
 
+  /// Fetches data for the selected location.
+  ///
+  /// [location] is the key for the selected location from [trainingLocations].
   void _fetchDataForLocation(String location) {
     setState(() {
       selectedLocation = location;
@@ -91,8 +97,7 @@ class _HomePageState extends State<HomePage> {
                       _fetchDataForLocation(newValue);
                     }
                   },
-                  items: trainingLocations.keys
-                      .map<DropdownMenuItem<String>>((String value) {
+                  items: trainingLocations.keys.map<DropdownMenuItem<String>>((String value) {
                     return DropdownMenuItem<String>(
                       value: value,
                       child: Text(value),
@@ -108,15 +113,7 @@ class _HomePageState extends State<HomePage> {
                       selectedDay = newValue!;
                     });
                   },
-                  items: [
-                    'Monday',
-                    'Tuesday',
-                    'Wednesday',
-                    'Thursday',
-                    'Friday',
-                    'Saturday',
-                    'Sunday'
-                  ].map<DropdownMenuItem<String>>((String value) {
+                  items: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map<DropdownMenuItem<String>>((String value) {
                     return DropdownMenuItem<String>(
                       value: value,
                       child: Text(value),
@@ -131,9 +128,33 @@ class _HomePageState extends State<HomePage> {
               future: futureLocationData,
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
+                  // Show a loading indicator while waiting for data
                   return Center(child: CircularProgressIndicator());
                 } else if (snapshot.hasError) {
-                  return Center(child: Text('Error: ${snapshot.error}'));
+                  // Check for no network error specifically
+                  if (snapshot.error.toString().contains('No network connection')) {
+                    return Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text('No network connection. Please check your internet settings.'),
+                          SizedBox(height: 16),
+                          ElevatedButton(
+                            onPressed: () {
+                              // Retry fetching data
+                              setState(() {
+                                futureLocationData = ApiService().fetchData(trainingLocations[selectedLocation]!);
+                              });
+                            },
+                            child: Text('Retry'),
+                          ),
+                        ],
+                      ),
+                    );
+                  } else {
+                    // Display a generic error message for other errors
+                    return Center(child: Text('Error: ${snapshot.error}'));
+                  }
                 } else if (snapshot.hasData) {
                   var locationData = snapshot.data!;
 
@@ -156,7 +177,7 @@ class _HomePageState extends State<HomePage> {
                     return Center(child: Text('Data for $selectedDay is not available.'));
                   }
                 } else {
-                  // If snapshot doesn't have data, show an empty container or appropriate message
+                  // If snapshot doesn't have data, show an appropriate message
                   return Center(child: Text('No data available.'));
                 }
               },
