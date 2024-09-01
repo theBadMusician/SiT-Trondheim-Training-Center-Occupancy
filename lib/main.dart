@@ -4,11 +4,13 @@ import 'data_models.dart';
 import 'graph_widget.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 /// The main application widget.
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -16,18 +18,20 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: HomePage(),
+      home: const HomePage(),
     );
   }
 }
 
 /// The home page of the application, displaying a graph of location data.
 class HomePage extends StatefulWidget {
+  const HomePage({super.key});
+
   @override
-  _HomePageState createState() => _HomePageState();
+  HomePageState createState() => HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class HomePageState extends State<HomePage> {
   // Map of training locations with their respective IDs
   final Map<String, String> trainingLocations = {
     "Gløshaugen": "306",
@@ -72,9 +76,9 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: PreferredSize(
-        preferredSize: Size.fromHeight(20.0), // Smaller AppBar height
+        preferredSize: const Size.fromHeight(20.0), // Smaller AppBar height
         child: AppBar(
-          title: Text(
+          title: const Text(
             'SiT Training Center Vacancy',
             style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold), // Smaller title font size
           ),
@@ -104,7 +108,7 @@ class _HomePageState extends State<HomePage> {
                     );
                   }).toList(),
                 ),
-                SizedBox(width: 20), // Space between the dropdowns
+                const SizedBox(width: 20), // Space between the dropdowns
                 // Dropdown for selecting day
                 DropdownButton<String>(
                   value: selectedDay,
@@ -129,7 +133,7 @@ class _HomePageState extends State<HomePage> {
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   // Show a loading indicator while waiting for data
-                  return Center(child: CircularProgressIndicator());
+                  return const Center(child: CircularProgressIndicator());
                 } else if (snapshot.hasError) {
                   // Check for no network error specifically
                   if (snapshot.error.toString().contains('No network connection')) {
@@ -137,8 +141,8 @@ class _HomePageState extends State<HomePage> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Text('No network connection. Please check your internet settings.'),
-                          SizedBox(height: 16),
+                          const Text('No network connection. Please check your internet settings.'),
+                          const SizedBox(height: 16),
                           ElevatedButton(
                             onPressed: () {
                               // Retry fetching data
@@ -146,7 +150,7 @@ class _HomePageState extends State<HomePage> {
                                 futureLocationData = ApiService().fetchData(trainingLocations[selectedLocation]!);
                               });
                             },
-                            child: Text('Retry'),
+                            child: const Text('Retry'),
                           ),
                         ],
                       ),
@@ -178,7 +182,7 @@ class _HomePageState extends State<HomePage> {
                   }
                 } else {
                   // If snapshot doesn't have data, show an appropriate message
-                  return Center(child: Text('No data available.'));
+                  return const Center(child: Text('No data available.'));
                 }
               },
             ),
