@@ -20,6 +20,7 @@ class GraphWidgetState extends State<GraphWidget> {
   late double nearestQuarterHour; // Stores the nearest quarter-hour mark relative to current time
   late int nearestMinutes; // Stores the nearest quarter-minutes value to current time
   late int nearestValue; // Stores the value at the nearest quarter-hour
+  late List<FlSpot> spots; // Stores chart values
 
   @override
   void initState() {
@@ -54,14 +55,14 @@ class GraphWidgetState extends State<GraphWidget> {
     }
     // Convert time to a decimal format for hours
     double hour = now.hour + minutes / 60.0;
-    return (hour.clamp(5.0, 24.0), minutes); // Ensure it is within the valid range of the graph (5:00 to 24:00)
+    return (hour.clamp(5.0, 24.0), minutes.clamp(0, 59)); // Ensure it is within the valid range of the graph (5:00 to 24:00)
   }
 
   /// Gets the value from the graph data at the nearest quarter-hour.
   int _getNearestValue(double hour, int minutes) {
-    String hourKey = (hour.floor()).toString() ?? "12";
+    String hourKey = (hour.floor()).toString();
     HourData hourEntry = widget.dayData.hours[hourKey]!;
-    int minuteEntry = hourEntry.minutes[minutes.toString()]!; // Value
+    int minuteEntry = hourEntry.minutes[minutes.toString()] ?? 50; // Value
     return minuteEntry;
   }
 
@@ -101,15 +102,12 @@ class GraphWidgetState extends State<GraphWidget> {
     // return maxHeight * (1 - nearestValue / 100);
     var divisor = (1 - nearestValue / 100);
     var y = (maxHeight * divisor).ceil().toDouble();
-    print(y);
-    print(maxHeight);
-    print(divisor);
     return y;
   }
 
   /// Widget to build the line chart.
   Widget _buildLineChart() {
-    List<FlSpot> spots = _prepareChartData();
+    spots = _prepareChartData();
     return LineChart(
       LineChartData(
         minY: 0,

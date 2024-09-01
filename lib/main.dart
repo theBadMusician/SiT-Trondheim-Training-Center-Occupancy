@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
+
 import 'api_service.dart';
 import 'data_models.dart';
 import 'graph_widget.dart';
 
 void main() {
+  WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
   runApp(const MyApp());
 }
 
@@ -13,11 +17,47 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    FlutterNativeSplash.remove();
     return MaterialApp(
       title: 'Interactive Graph App',
+      // theme: ThemeData(
+      //   primarySwatch: Colors.blue,
+      // ),
       theme: ThemeData(
+        // Light theme settings
+        brightness: Brightness.light,
         primarySwatch: Colors.blue,
+        primaryColor: Colors.blue,
+        scaffoldBackgroundColor: Colors.white,
+        // Additional customizations here
       ),
+      darkTheme: ThemeData(
+        // Dark theme settings
+        brightness: Brightness.dark,
+        primarySwatch: Colors.blue,
+        primaryColor: Colors.blue,
+        // AColor: Colors.blueAccent,
+        scaffoldBackgroundColor: Colors.black,
+        textTheme: const TextTheme(
+          displayLarge: TextStyle(color: Colors.white),
+          displayMedium: TextStyle(color: Colors.white),
+          displaySmall: TextStyle(color: Colors.white),
+          headlineLarge: TextStyle(color: Colors.white),
+          headlineMedium: TextStyle(color: Colors.white),
+          headlineSmall: TextStyle(color: Colors.white),
+          titleLarge: TextStyle(color: Colors.white),
+          titleMedium: TextStyle(color: Colors.white),
+          titleSmall: TextStyle(color: Colors.white),
+          bodyLarge: TextStyle(color: Colors.white),
+          bodyMedium: TextStyle(color: Colors.white),
+          bodySmall: TextStyle(color: Colors.white),
+          labelLarge: TextStyle(color: Colors.white),
+          labelMedium: TextStyle(color: Colors.white),
+          labelSmall: TextStyle(color: Colors.white),
+        ),
+        // Additional customizations here
+      ),
+      themeMode: ThemeMode.system, // Use the system's theme mode setting
       home: const HomePage(),
     );
   }
