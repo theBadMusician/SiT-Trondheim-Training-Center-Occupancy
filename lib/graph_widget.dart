@@ -18,19 +18,22 @@ class GraphWidget extends StatefulWidget {
 /// State class for [GraphWidget].
 class GraphWidgetState extends State<GraphWidget> {
   late double nearestQuarterHour; // Stores the nearest quarter-hour mark relative to current time
-  late double nearestValue; // Stores the value at the nearest quarter-hour
-  bool showDefaultTooltip = true; // Flag to manage default tooltip display
+  late int nearestMinutes; // Stores the nearest quarter-minutes value to current time
+  late int nearestValue; // Stores the value at the nearest quarter-hour
 
   @override
   void initState() {
     super.initState();
     // Initialize the nearest quarter-hour and its value
-    nearestQuarterHour = _getNearestQuarterHour(); // Calculate nearest 15-minute mark
-    nearestValue = _getNearestValue(nearestQuarterHour); // Get the value at the nearest quarter-hour
+    var nearestQuarterData = _getNearestQuarterHour(); // Calculate nearest 15-minute mark
+    // Explicitly unpack the record
+    nearestQuarterHour = nearestQuarterData.$1;
+    nearestMinutes = nearestQuarterData.$2;
+    nearestValue = _getNearestValue(nearestQuarterHour, nearestMinutes); // Get the value at the nearest quarter-hour
   }
 
   /// Calculates the nearest quarter-hour mark to the current time.
-  double _getNearestQuarterHour() {
+  (double, int) _getNearestQuarterHour() {
     final now = DateTime.now();
     // Calculate the nearest 15-minute increment
     int minutes = (now.minute ~/ 15) * 15;
@@ -39,27 +42,15 @@ class GraphWidgetState extends State<GraphWidget> {
     }
     // Convert time to a decimal format for hours
     double hour = now.hour + minutes / 60.0;
-    return hour.clamp(5.0, 24.0); // Ensure it is within the valid range of the graph (5:00 to 24:00)
+    return (hour.clamp(5.0, 24.0), minutes); // Ensure it is within the valid range of the graph (5:00 to 24:00)
   }
 
   /// Gets the value from the graph data at the nearest quarter-hour.
-  double _getNearestValue(double hour) {
-    // Iterate over the hours in the day data
-    for (var hourData in widget.dayData.hours.entries) {
-      int hourValue = int.parse(hourData.key);
-      // Check if within the hour and the next quarter-hour
-      if (hourValue + 0.25 >= hour) {
-        for (var minuteEntry in hourData.value.minutes.entries) {
-          // Calculate minute value as a decimal hour
-          double minuteValue = hourValue + int.parse(minuteEntry.key) / 60;
-          if ((minuteValue - hour).abs() < 0.125) {
-            // Check if within 15 minutes
-            return minuteEntry.value.toDouble();
-          }
-        }
-      }
-    }
-    return 0.0; // Default to 0 if no close match found
+  int _getNearestValue(double hour, int minutes) {
+    String hourKey = (hour.floor()).toString() ?? "12";
+    HourData hourEntry = widget.dayData.hours[hourKey]!;
+    int minuteEntry = hourEntry.minutes[minutes.toString()]!; // Value
+    return minuteEntry;
   }
 
   @override
@@ -74,7 +65,7 @@ class GraphWidgetState extends State<GraphWidget> {
           return Stack(
             children: [
               _buildLineChart(),
-              if (showDefaultTooltip) _buildRedDot(x, y),
+              _buildRedDot(x, y),
             ],
           );
         },
@@ -160,13 +151,6 @@ class GraphWidgetState extends State<GraphWidget> {
         lineTouchData: LineTouchData(
           handleBuiltInTouches: true,
           touchTooltipData: _buildTooltipData(),
-          touchCallback: (FlTouchEvent event, LineTouchResponse? touchResponse) {
-            if (event is FlTapUpEvent || event is FlLongPressEnd) {
-              setState(() {
-                showDefaultTooltip = false;
-              });
-            }
-          },
         ),
       ),
     );
@@ -228,10 +212,10 @@ class GraphWidgetState extends State<GraphWidget> {
   /// Widget to build the red dot that indicates the nearest quarter-hour value.
   Widget _buildRedDot(double x, double y) {
     return Positioned(
-      left: x,
-      top: y,
+      left: x + 9,
+      top: y - 9,
       child: CustomPaint(
-        painter: RedDotPainter(),
+        painter: RedDotPainter(y - 10),
       ),
     );
   }
