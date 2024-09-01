@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'data_models.dart'; // Assuming this is where DayData is defined
-import 'red_dot_painter.dart'; // New file for custom painter
+import 'animated_indicator.dart'; // New file for custom painter
 
 /// A widget that displays a line graph for a given day's data.
 class GraphWidget extends StatefulWidget {
@@ -27,6 +27,7 @@ class GraphWidgetState extends State<GraphWidget> {
     _updateNearestQuarterAndValue(); // Initialize nearest quarter-hour and value
   }
 
+  /// Update widget on day change
   @override
   void didUpdateWidget(covariant GraphWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
@@ -35,6 +36,7 @@ class GraphWidgetState extends State<GraphWidget> {
     }
   }
 
+  /// Wrapper method for current hour, minutes, and value
   void _updateNearestQuarterAndValue() {
     var nearestQuarterData = _getNearestQuarterHour();
     nearestQuarterHour = nearestQuarterData.$1;
@@ -69,13 +71,19 @@ class GraphWidgetState extends State<GraphWidget> {
       padding: const EdgeInsets.only(left: 8.0, right: 24.0, top: 8.0, bottom: 8.0),
       child: LayoutBuilder(
         builder: (context, constraints) {
-          final double x = _calculateDotPositionX(constraints.maxWidth);
-          final double y = _calculateDotPositionY(constraints.maxHeight);
+          final double x = _calculateDotPositionX(constraints.maxWidth) + 7;
+          final double y = _calculateDotPositionY(constraints.maxHeight) - 15;
 
           return Stack(
             children: [
               _buildLineChart(),
-              _buildRedDot(x, y),
+              AnimatedIndicator(
+                x: x, // Adjusted to align with your original placement logic
+                y: y, // Adjusted to align with your original placement logic
+                maxHeight: constraints.maxHeight,
+                duration: const Duration(milliseconds: 150), // Adjust animation duration as needed
+                curve: Curves.easeInOut, // Choose an animation curve that suits your needs
+              ),
             ],
           );
         },
@@ -90,7 +98,13 @@ class GraphWidgetState extends State<GraphWidget> {
 
   /// Helper method to calculate the Y position of the red dot on the chart.
   double _calculateDotPositionY(double maxHeight) {
-    return maxHeight * (1 - nearestValue / 100);
+    // return maxHeight * (1 - nearestValue / 100);
+    var divisor = (1 - nearestValue / 100);
+    var y = (maxHeight * divisor).ceil().toDouble();
+    print(y);
+    print(maxHeight);
+    print(divisor);
+    return y;
   }
 
   /// Widget to build the line chart.
@@ -156,6 +170,8 @@ class GraphWidgetState extends State<GraphWidget> {
             isStrokeCapRound: true,
             belowBarData: BarAreaData(show: true),
             dotData: const FlDotData(show: false),
+            preventCurveOverShooting: false,
+            preventCurveOvershootingThreshold: 10,
           ),
         ],
         lineTouchData: LineTouchData(
@@ -216,17 +232,6 @@ class GraphWidgetState extends State<GraphWidget> {
           );
         }).toList();
       },
-    );
-  }
-
-  /// Widget to build the red dot that indicates the nearest quarter-hour value.
-  Widget _buildRedDot(double x, double y) {
-    return Positioned(
-      left: x + 9,
-      top: y - 9,
-      child: CustomPaint(
-        painter: RedDotPainter(y - 10),
-      ),
     );
   }
 }
