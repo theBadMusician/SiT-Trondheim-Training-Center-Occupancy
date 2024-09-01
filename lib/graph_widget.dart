@@ -24,12 +24,22 @@ class GraphWidgetState extends State<GraphWidget> {
   @override
   void initState() {
     super.initState();
-    // Initialize the nearest quarter-hour and its value
-    var nearestQuarterData = _getNearestQuarterHour(); // Calculate nearest 15-minute mark
-    // Explicitly unpack the record
+    _updateNearestQuarterAndValue(); // Initialize nearest quarter-hour and value
+  }
+
+  @override
+  void didUpdateWidget(covariant GraphWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.dayData != oldWidget.dayData) {
+      _updateNearestQuarterAndValue(); // Recalculate nearest quarter-hour and value on data change
+    }
+  }
+
+  void _updateNearestQuarterAndValue() {
+    var nearestQuarterData = _getNearestQuarterHour();
     nearestQuarterHour = nearestQuarterData.$1;
     nearestMinutes = nearestQuarterData.$2;
-    nearestValue = _getNearestValue(nearestQuarterHour, nearestMinutes); // Get the value at the nearest quarter-hour
+    nearestValue = _getNearestValue(nearestQuarterHour, nearestMinutes);
   }
 
   /// Calculates the nearest quarter-hour mark to the current time.
