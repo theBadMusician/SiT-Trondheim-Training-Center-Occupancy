@@ -40,7 +40,7 @@ dependencies:
   http: ^1.2.2
   flutter_charts: ^0.5.2
   fl_chart: ^0.69.0
-  connectivity_plus: ^4.0.1
+  connectivity_plus: ^6.0.5
 
 dev_dependencies:
   flutter_test:
@@ -99,12 +99,18 @@ flutter:
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
 
-flutter_icons:
+flutter_launcher_icons:
   android: true
   image_path: "assets/sit_pic.png" # Path to your app icon file
+  min_sdk_android: 21 # android min sdk min:16, default 21
 
 flutter_native_splash:
-  color: "#42a5f5" # Background color for splash screen
-  image: "assets/sit_pic.png" # Path to your app icon file
-  android: true
-  #web: true
+  color: "#700306"
+  image: assets/sit_pic.png
+  branding: assets/sit_pic.png
+  branding_bottom_padding: 24
+  color_dark: "#000000"
+
+  android_12:
+    image: assets/sit_pic.png
+    icon_background_color: "#700406"
