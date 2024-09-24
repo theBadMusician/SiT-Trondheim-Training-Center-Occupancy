@@ -48,6 +48,14 @@ To build the app from source on your local machine:
     flutter run
     ```
 
+## The App
+
+<p align="center">
+  <img src="assets/app_dark_mode.jpg" alt="Dark mode" width="300"  style="margin: 0 10px;" />
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <!-- Adds space between images -->
+  <img src="assets/app_light_mode.jpg" alt="Light mode" width="300" />
+</p>
+
 ## Future Plans
 
 - **iOS and Desktop Support**: Plan to extend support to iOS devices and make a desktop app if there is enough interest.
